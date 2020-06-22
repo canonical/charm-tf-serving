@@ -1,0 +1,24 @@
+options:
+  model-name:
+    type: string
+    default: ~
+    description: Name of single model to serve
+  model-base-path:
+    type: string
+    default: ~
+    description: |
+      Path to single model to serve. Should be specified as a relative path that
+      will be prefixed with `/models`, i.e. the mounting location for the workload
+      pod's storage.
+  model-conf:
+    type: string
+    default: model.conf
+    description: Configuration file containing models to serve
+  grpc-port:
+    type: int
+    default: 9000
+    description: The port to serve the GRPC API on
+  rest-port:
+    type: int
+    default: 9001
+    description: The port to serve the REST API on
