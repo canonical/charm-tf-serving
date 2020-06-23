@@ -1,10 +1,9 @@
 name: Publish bundle to charm store
 
 on:
-  - push
-  # push:
-  #   branches:
-  #     - master
+  push:
+    branches:
+      - master
 
 jobs:
   build:
