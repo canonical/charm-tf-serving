@@ -1,11 +1,11 @@
 options:
   model-name:
     type: string
-    default: ~
+    default: ''
     description: Name of single model to serve
   model-base-path:
     type: string
-    default: ~
+    default: ''
     description: |
       Path to single model to serve. Should be specified as a relative path that
       will be prefixed with `/models`, i.e. the mounting location for the workload
