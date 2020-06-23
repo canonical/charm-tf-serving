@@ -1,0 +1,29 @@
+name: Publish bundle to charm store
+
+on:
+  - push
+  # push:
+  #   branches:
+  #     - master
+
+jobs:
+  build:
+    name: Publish bundle
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Check out code
+      uses: actions/checkout@v2
+
+    - name: Install dependencies
+      run: |
+        sudo snap install charm --classic
+
+    - name: Publish bundle
+      env:
+        CHARMSTORE_CREDENTIAL: ${{ secrets.CHARMSTORE_CREDENTIAL }}
+      run: |
+        echo $CHARMSTORE_CREDENTIAL > ~/.go-cookies
+        charm build
+        charm push ~/charms/builds/tf-serving cs:~kubeflow-charmers/tf-serving --resource oci-image=tensorflow/serving:1.12.0
+

@@ -1,0 +1,48 @@
+name: MicroK8s Test
+
+on:
+  - push
+  - pull_request
+
+jobs:
+  build:
+    name: Deploy to microk8s
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Check out repo
+      uses: actions/checkout@v2
+
+    - name: Install dependencies
+      run: |
+        sudo snap install microk8s --classic
+        sudo snap install charm --classic
+        sudo snap install juju --classic --channel latest/edge
+        sudo snap install juju-wait --classic
+
+    - name: 
+      run: |
+        sudo usermod -a -G microk8s runner
+        sudo microk8s.enable dns storage
+        sudo juju bootstrap microk8s uk8s
+        sudo juju add-model ci-test microk8s
+        charm build
+        juju deploy ~/charms/builds/tf-serving --resource oci-image=tensorflow/serving:1.12.0
+        juju wait -wv
+
+    # Debug failures
+    - name: Get pod statuses
+      run: sudo microk8s.kubectl get all -A
+      if: failure()
+    - name: Describe deployments
+      run: sudo microk8s.kubectl describe deployments -A
+      if: failure()
+    - name: Describe replicasets
+      run: sudo microk8s.kubectl describe replicasets -A
+      if: failure()
+    - name: Get operator logs
+      run: sudo microk8s.kubectl logs -n ci-test --tail 1000 -ljuju-operator=tf-serving
+      if: failure()
+    - name: Get workload logs
+      run: sudo microk8s.kubectl logs -n ci-test --tail 1000 -ljuju-app=tf-serving
+      if: failure()
