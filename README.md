@@ -95,3 +95,28 @@ And then contacting it via that address:
     {
         "predictions": [2.5, 3.0, 3.5]
     }
+
+## General Kubernetes example
+
+If you're using a Kubernetes cluster that doesn't support simply copying files over, you can
+deploy this charm as above, and then copy the files manually with `kubectl cp`:
+
+    # Start by cloning the example serving artifacts
+    git clone https://github.com/tensorflow/serving.git
+
+    # Ensure that you have your `kubeconfig` set up properly. For example, with Charmed Kubernetes:
+    juju scp -m default kubernetes-master/0:~/config ~/.kube/config
+
+    # Then copy the files to the tf-serving pod
+    kubectl cp -n kubeflow serving/tensorflow_serving/servables/tensorflow/testdata tf-serving-0:/models/
+
+After you've copied the files over, you can interact with tf-serving by port forwarding:
+
+    kubectl port-forward -n kubeflow service/tf-serving 9001:9001
+
+TensorFlow Serving will then be available at `localhost`:
+
+    $ curl http://localhost:9001/v1/models/saved_model_half_plus_two_cpu:predict -d '{"instances": [1, 2, 3]}'
+    {
+        "predictions": [2.5, 3.0, 3.5]
+}
