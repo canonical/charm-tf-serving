@@ -27,7 +27,7 @@ jobs:
         sudo juju bootstrap microk8s uk8s
         sudo juju add-model ci-test microk8s
         charm build
-        juju deploy ~/charms/builds/tf-serving --resource oci-image=tensorflow/serving:1.12.0
+        juju deploy /tmp/charm-builds/tf-serving --resource oci-image=tensorflow/serving:1.12.0
         juju wait -wv
 
     # Debug failures
