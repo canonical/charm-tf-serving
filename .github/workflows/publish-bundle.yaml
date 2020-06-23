@@ -23,6 +23,7 @@ jobs:
       env:
         CHARMSTORE_CREDENTIAL: ${{ secrets.CHARMSTORE_CREDENTIAL }}
       run: |
+        set -eux
         echo $CHARMSTORE_CREDENTIAL > ~/.go-cookies
         charm build
         docker pull tensorflow/serving:1.12.0

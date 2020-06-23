@@ -15,13 +15,15 @@ jobs:
 
     - name: Install dependencies
       run: |
+        set -eux
         sudo snap install microk8s --classic
         sudo snap install charm --classic
         sudo snap install juju --classic --channel latest/edge
         sudo snap install juju-wait --classic
 
-    - name: 
+    - name: Deploy tf-serving
       run: |
+        set -eux
         sudo usermod -a -G microk8s runner
         sudo microk8s.enable dns storage
         sudo juju bootstrap microk8s uk8s
