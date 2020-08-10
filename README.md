@@ -119,4 +119,5 @@ TensorFlow Serving will then be available at `localhost`:
     $ curl http://localhost:9001/v1/models/saved_model_half_plus_two_cpu:predict -d '{"instances": [1, 2, 3]}'
     {
         "predictions": [2.5, 3.0, 3.5]
-}
+    }
+
