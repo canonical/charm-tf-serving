@@ -5,14 +5,14 @@
 To deploy TensorFlow Serving with a model, start by deploying the charm. For a single model, it
 will look something like this:
 
-    juju deploy cs:~kubeflow-charmers/kubeflow-tf-serving \
+    juju deploy cs:~kubeflow-charmers/tf-serving \
         --storage models=$NAME_OF_STORAGE_CLASS,, \
         --config model-name=/path/to/base/dir/model-name
         --config model-base-path=relative/path/to/model
 
 For multiple models, you can specify a configuration file like this:
 
-    juju deploy cs:~kubeflow-charmers/kubeflow-tf-serving \
+    juju deploy cs:~kubeflow-charmers/tf-serving \
         --storage models=$NAME_OF_STORAGE_CLASS,,
         --config model-conf=/path/to/model.conf
 
@@ -45,7 +45,7 @@ Then, ensure that you've enabled storage in MicroK8s:
 
 Next, deploy the charm:
 
-    juju deploy cs:~kubeflow-charmers/kubeflow-tf-serving \
+    juju deploy cs:~kubeflow-charmers/tf-serving \
         --storage models=kubernetes,, \
         --config model-name=saved_model_half_plus_two_cpu \
         --config model-base-path=testdata/saved_model_half_plus_two_cpu
