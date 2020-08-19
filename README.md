@@ -31,6 +31,13 @@ Next, you will need to copy the files onto the storage device backing the worklo
 do this will vary by type of storage class used. For a simple example, see the full MicroK8s
 example below.
 
+## Logging
+
+You can control the verbosity of the TF Serving logs by setting the `tf-logging-level` config option
+to a value between 0 and 3, inclusive. For example, you could set the logging level as:
+
+    juju config tf-serving tf-logging-level=3
+
 ## MicroK8s example
 
 To start, clone this git repository locally https://github.com/tensorflow/serving:
@@ -121,3 +128,16 @@ TensorFlow Serving will then be available at `localhost`:
         "predictions": [2.5, 3.0, 3.5]
     }
 
+## S3 Example
+
+You can also deploy TF Serving with a model that's hosted on S3 instead of in the container itself.
+For example, if you have a model at `s3://YOURBUCKET/testdata/saved_model_half_plus_two_cpu`, you
+would deploy this charm like this:
+
+    juju deploy cs:~kubeflow-charmers/tf-serving \
+        --config model-name=saved_model_half_plus_two_cpu \
+        --config model-base-path=s3://YOURBUCKET/testdata \
+        --config aws-access-key-id=... \
+        --config aws-region=us-east-1 \
+        --config aws-secret-access-key=... \
+        --config s3-endpoint=x.x.x.x

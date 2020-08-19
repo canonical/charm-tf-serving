@@ -41,7 +41,7 @@ jobs:
             --resource oci-image=$IMAGE \
             --storage models=kubernetes,, \
             --config model-name=saved_model_half_plus_two_cpu \
-            --config model-base-path=testdata/saved_model_half_plus_two_cpu
+            --config model-base-path=/models/testdata/saved_model_half_plus_two_cpu
         sudo juju wait -wvt 60
 
     - name: Upload model

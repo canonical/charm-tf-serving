@@ -7,12 +7,11 @@ options:
     type: string
     default: ''
     description: |
-      Path to single model to serve. Should be specified as a relative path that
-      will be prefixed with `/models`, i.e. the mounting location for the workload
-      pod's storage.
+      Path to single model to serve. Can either be an absolute path to a local file, starting
+      with `/models` (as that's where storage is mounted), or an S3 URL such as s3://bucket/file
   model-conf:
     type: string
-    default: model.conf
+    default: ''
     description: Configuration file containing models to serve
   grpc-port:
     type: int
@@ -22,3 +21,35 @@ options:
     type: int
     default: 9001
     description: The port to serve the REST API on
+  aws-access-key-id:
+    type: string
+    default: ''
+    description: AWS Access Key ID. Only necessary when serving models from S3
+  aws-region:
+    type: string
+    default: ''
+    description: AWS Region. Only necessary when serving models from S3
+  aws-secret-access-key:
+    type: string
+    default: ''
+    description: AWS Secret Access Key. Only necessary when serving models from S3
+  s3-endpoint:
+    type: string
+    default: ''
+    description: S3 Endpoint. Only necessary when serving models from S3
+  s3-use-https:
+    type: string
+    default: '1'
+    description: |
+      If `1`, HTTPS will be used when talking to the S3 endpoint. If `0`,
+      HTTP will be used.
+  s3-verify-ssl:
+    type: string
+    default: '1'
+    description: |
+      If `1`, SSL certificates will be verified. If `0`, SSL certificates will not
+      be verified.
+  tf-logging-level:
+    type: string
+    default: '0'
+    description: Sets TF_CPP_MIN_LOG_LEVEL. Valid values are 0 through 3, inclusive

@@ -25,21 +25,24 @@ def start_charm():
 
     image_info = layer.docker_resource.get_info("oci-image")
 
-    model_name = hookenv.config("model-name")
-    model_base_path = hookenv.config("model-base-path")
-    model_conf = hookenv.config("model-conf")
-    grpc_port = hookenv.config("grpc-port")
-    rest_port = hookenv.config("rest-port")
+    config = dict(hookenv.config())
 
-    if model_name and model_base_path:
-        hookenv.log(f"Serving single model `{model_name}`")
-        command_args = [
-            f"--model_name={model_name}",
-            f"--model_base_path=/models/{model_base_path}",
-        ]
-    else:
+    model_conf = config["model-conf"]
+    grpc_port = config["grpc-port"]
+    rest_port = config["rest-port"]
+
+    if config.get('model-conf'):
         hookenv.log(f"Serving models from {model_conf}")
         command_args = [f"--model_config_file=/models/{model_conf}"]
+    elif config.get('model-base-path') and config.get('model-name'):
+        hookenv.log(f"Serving single model `{config['model-name']}`")
+        command_args = [
+            f"--model_name={config['model-name']}",
+            f"--model_base_path={config['model-base-path']}",
+        ]
+    else:
+        layer.status.blocked('One of model-conf or model-base-path must be specified.')
+        return False
 
     layer.caas_base.pod_spec_set(
         {
@@ -58,6 +61,17 @@ def start_charm():
                         f"--rest_api_port={rest_port}",
                     ]
                     + command_args,
+                    'config': {
+                        'AWS_ACCESS_KEY_ID': config['aws-access-key-id'],
+                        'AWS_REGION': config['aws-region'],
+                        'AWS_SECRET_ACCESS_KEY': config['aws-secret-access-key'],
+                        'MODEL_BASE_PATH': config['model-base-path'],
+                        'MODEL_NAME': config['model-name'],
+                        'S3_ENDPOINT': config['s3-endpoint'],
+                        'S3_USE_HTTPS': config['s3-use-https'],
+                        'S3_VERIFY_SSL': config['s3-verify-ssl'],
+                        'TF_CPP_MIN_LOG_LEVEL': config['tf-logging-level'],
+                    },
                     "ports": [
                         {"name": "tf-serving-grpc", "containerPort": grpc_port},
                         {"name": "tf-serving-rest", "containerPort": rest_port},
