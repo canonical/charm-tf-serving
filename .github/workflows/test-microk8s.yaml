@@ -18,33 +18,49 @@ jobs:
         set -eux
         sudo snap install microk8s --classic
         sudo snap install charm --classic
-        sudo snap install juju --classic --channel latest/edge
+        sudo snap install juju --classic --channel latest/stable
         sudo snap install juju-wait --classic
+        sudo snap install yq
+        sudo pip3 install pytest
 
-    - name: Deploy tf-serving
+    - name: Set up dependencies
       run: |
         set -eux
         sudo usermod -a -G microk8s runner
         sudo microk8s.enable dns storage
+        sudo microk8s.kubectl wait --for=condition=available -nkube-system deployment/coredns deployment/hostpath-provisioner --timeout=10m
         sudo juju bootstrap microk8s uk8s
         sudo juju add-model ci-test microk8s
-        charm build
-        sudo juju deploy /tmp/charm-builds/tf-serving --resource oci-image=tensorflow/serving:1.12.0
-        sudo juju wait -wv
 
-    # Debug failures
-    - name: Get pod statuses
-      run: sudo microk8s.kubectl get all -A
-      if: failure()
-    - name: Describe deployments
-      run: sudo microk8s.kubectl describe deployments -A
-      if: failure()
-    - name: Describe replicasets
-      run: sudo microk8s.kubectl describe replicasets -A
-      if: failure()
-    - name: Get operator logs
-      run: sudo microk8s.kubectl logs -n ci-test --tail 1000 -ljuju-operator=tf-serving
-      if: failure()
-    - name: Get workload logs
-      run: sudo microk8s.kubectl logs -n ci-test --tail 1000 -ljuju-app=tf-serving
+    - name: Deploy tf-serving
+      run: |
+        set -eux
+        charm build
+        IMAGE="$(yq r metadata.yaml resources.oci-image.upstream-source)"
+        sudo juju deploy /tmp/charm-builds/tf-serving \
+            --resource oci-image=$IMAGE \
+            --storage models=kubernetes,, \
+            --config model-name=saved_model_half_plus_two_cpu \
+            --config model-base-path=testdata/saved_model_half_plus_two_cpu
+        sudo juju wait -wvt 60
+
+    - name: Upload model
+      run: |
+        set -eux
+        git clone https://github.com/tensorflow/serving.git
+        sudo ls -lath /var/snap/microk8s/common/default-storage/
+        sudo cp -r serving/tensorflow_serving/servables/tensorflow/testdata/ /var/snap/microk8s/common/default-storage/ci-test-models-*-tf-serving-0-*/
+
+    - name: Test model
+      run: sudo pytest tests/
+
+    - name: Debug failures
+      run: |
+        set -eux
+        sudo juju status
+        sudo microk8s.kubectl get all -A
+        sudo microk8s.kubectl describe deployments -A
+        sudo microk8s.kubectl describe replicasets -A
+        sudo microk8s.kubectl logs -n ci-test --tail 1000 -ljuju-operator=tf-serving
+        sudo microk8s.kubectl logs -n ci-test --tail 1000 -ljuju-app=tf-serving
       if: failure()
