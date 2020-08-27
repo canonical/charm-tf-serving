@@ -17,6 +17,7 @@ jobs:
     - name: Install dependencies
       run: |
         sudo snap install charm --classic
+        sudo snap install yq
 
     - name: Publish bundle
       env:
@@ -25,6 +26,7 @@ jobs:
         set -eux
         echo $CHARMSTORE_CREDENTIAL > ~/.go-cookies
         charm build
-        docker pull tensorflow/serving:1.12.0
-        charm push /tmp/charm-builds/tf-serving cs:~kubeflow-charmers/tf-serving --resource oci-image=tensorflow/serving:1.12.0
+        IMAGE="$(yq r metadata.yaml resources.oci-image.upstream-source)"
+        docker pull $IMAGE
+        charm push /tmp/charm-builds/tf-serving cs:~kubeflow-charmers/tf-serving --resource oci-image=$IMAGE
 
