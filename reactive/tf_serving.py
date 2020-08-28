@@ -44,6 +44,21 @@ def start_charm():
         layer.status.blocked('One of model-conf or model-base-path must be specified.')
         return False
 
+    env_vars = {
+        'AWS_ACCESS_KEY_ID': config['aws-access-key-id'],
+        'AWS_REGION': config['aws-region'],
+        'AWS_SECRET_ACCESS_KEY': config['aws-secret-access-key'],
+        'MODEL_BASE_PATH': config['model-base-path'],
+        'MODEL_NAME': config['model-name'],
+        'S3_ENDPOINT': config['s3-endpoint'],
+        'S3_USE_HTTPS': config['s3-use-https'],
+        'S3_VERIFY_SSL': config['s3-verify-ssl'],
+        'TF_CPP_MIN_LOG_LEVEL': config['tf-logging-level'],
+    }
+    additional_env_vars = dict(
+        line.strip().split('=', maxsplit=1) for line in config['env-vars'].splitlines()
+    )
+
     layer.caas_base.pod_spec_set(
         {
             "version": 2,
@@ -61,17 +76,7 @@ def start_charm():
                         f"--rest_api_port={rest_port}",
                     ]
                     + command_args,
-                    'config': {
-                        'AWS_ACCESS_KEY_ID': config['aws-access-key-id'],
-                        'AWS_REGION': config['aws-region'],
-                        'AWS_SECRET_ACCESS_KEY': config['aws-secret-access-key'],
-                        'MODEL_BASE_PATH': config['model-base-path'],
-                        'MODEL_NAME': config['model-name'],
-                        'S3_ENDPOINT': config['s3-endpoint'],
-                        'S3_USE_HTTPS': config['s3-use-https'],
-                        'S3_VERIFY_SSL': config['s3-verify-ssl'],
-                        'TF_CPP_MIN_LOG_LEVEL': config['tf-logging-level'],
-                    },
+                    'config': {**env_vars, **additional_env_vars},
                     "ports": [
                         {"name": "tf-serving-grpc", "containerPort": grpc_port},
                         {"name": "tf-serving-rest", "containerPort": rest_port},

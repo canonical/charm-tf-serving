@@ -13,6 +13,12 @@ options:
     type: string
     default: ''
     description: Configuration file containing models to serve
+  env-vars:
+    type: string
+    default: ''
+    description: |
+      Set extra environment variables for the workload. Expects the format of a multiline-string
+      where every line is in the form `FOO=bar` (without the backticks).
   grpc-port:
     type: int
     default: 9000
