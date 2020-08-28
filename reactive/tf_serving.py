@@ -70,8 +70,7 @@ def start_charm():
                         "username": image_info.username,
                         "password": image_info.password,
                     },
-                    "command": [
-                        "/usr/bin/tensorflow_model_server",
+                    "args": [
                         f"--port={grpc_port}",
                         f"--rest_api_port={rest_port}",
                     ]
