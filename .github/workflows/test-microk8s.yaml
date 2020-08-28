@@ -41,7 +41,8 @@ jobs:
             --resource oci-image=$IMAGE \
             --storage models=kubernetes,, \
             --config model-name=saved_model_half_plus_two_cpu \
-            --config model-base-path=/models/testdata/saved_model_half_plus_two_cpu
+            --config model-base-path=/models/testdata/saved_model_half_plus_two_cpu \
+            --config env-vars="FOO=bar"$'\n'"BAR=baz"
         sudo juju wait -wvt 60
 
     - name: Upload model
@@ -58,6 +59,7 @@ jobs:
       run: |
         set -eux
         sudo juju status
+        sudo juju config tf-serving
         sudo microk8s.kubectl get all -A
         sudo microk8s.kubectl describe deployments -A
         sudo microk8s.kubectl describe replicasets -A
