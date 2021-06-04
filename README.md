@@ -55,7 +55,10 @@ Next, deploy the charm:
     juju deploy cs:~kubeflow-charmers/tf-serving \
         --storage models=kubernetes,, \
         --config model-name=saved_model_half_plus_two_cpu \
-        --config model-base-path=testdata/saved_model_half_plus_two_cpu
+        --config model-base-path=/models/testdata/saved_model_half_plus_two_cpu
+
+> Note: In further steps, you will copy the model from your local into the tf-serving pod. Keep in mind that the storage
+will be mounted in /models, thus your model-base-path should be appended with /models, as seen previously.
 
 You can use any of the models stored in the repository under
 `tensorflow_serving/servables/tensorflow/testdata/`, instead of `saved_model_half_plus_two_cpu`
