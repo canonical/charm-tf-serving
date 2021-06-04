@@ -13,7 +13,7 @@ will look something like this:
 For multiple models, you can specify a configuration file like this:
 
     juju deploy cs:~kubeflow-charmers/tf-serving \
-        --storage models=$NAME_OF_STORAGE_CLASS,,
+        --storage models=$NAME_OF_STORAGE_CLASS,,  \
         --config model-conf=/path/to/model.conf
 
 For both of these, change `$NAME_OF_STORAGE_CLASS` to the name of a storage class available on
